@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      files: {
+        Row: {
+          category: string
+          created_at: string
+          date_taken: string | null
+          file_name: string
+          id: string
+          is_junk: boolean
+          junk_reason: string | null
+          kind: string
+          mime_type: string | null
+          size_bytes: number | null
+          status: string
+          storage_path: string
+          summary: string | null
+          tags: string[]
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          date_taken?: string | null
+          file_name: string
+          id?: string
+          is_junk?: boolean
+          junk_reason?: string | null
+          kind?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path: string
+          summary?: string | null
+          tags?: string[]
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date_taken?: string | null
+          file_name?: string
+          id?: string
+          is_junk?: boolean
+          junk_reason?: string | null
+          kind?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string
+          summary?: string | null
+          tags?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      memories: {
+        Row: {
+          created_at: string
+          file_id: string
+          id: string
+          month_day: string
+          summary: string | null
+          tags: string[]
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          file_id: string
+          id?: string
+          month_day: string
+          summary?: string | null
+          tags?: string[]
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          file_id?: string
+          id?: string
+          month_day?: string
+          summary?: string | null
+          tags?: string[]
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memories_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          critical_docs: string[]
+          display_name: string | null
+          hobbies: string[]
+          important_years: string[]
+          onboarded: boolean
+          people: string[]
+          places: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          critical_docs?: string[]
+          display_name?: string | null
+          hobbies?: string[]
+          important_years?: string[]
+          onboarded?: boolean
+          people?: string[]
+          places?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          critical_docs?: string[]
+          display_name?: string | null
+          hobbies?: string[]
+          important_years?: string[]
+          onboarded?: boolean
+          people?: string[]
+          places?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
