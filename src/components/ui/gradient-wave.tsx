@@ -605,6 +605,7 @@ export function GradientWave({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const gradientRef = useRef<Gradient | null>(null);
   const colorKey = colors.join(",");
+  const freqKey = noiseFrequency.join(",");
   const deformKey = JSON.stringify(deform ?? { incline: 0.5, noiseAmp: 250, noiseFlow: 5 });
 
   useEffect(() => {
@@ -629,7 +630,7 @@ export function GradientWave({
       const u = gradient.mesh.material.uniforms;
       u.u_shadow_power.value = shadowPower;
       u.u_darken_top.value = darkenTop ? 1 : 0;
-      u.u_global.value.noiseFreq.value = noiseFrequency;
+      u.u_global.value.noiseFreq.value = freqKey.split(",").map(Number);
       u.u_global.value.noiseSpeed.value = noiseSpeed;
 
       const deformValues = JSON.parse(deformKey) as Record<string, number | number[]>;
@@ -647,7 +648,7 @@ export function GradientWave({
       gradientRef.current = null;
       if (container.contains(canvas)) container.removeChild(canvas);
     };
-  }, [colorKey, isPlaying, shadowPower, darkenTop, noiseSpeed, noiseFrequency, deformKey]);
+  }, [colorKey, isPlaying, shadowPower, darkenTop, noiseSpeed, freqKey, deformKey]);
 
   return <div ref={containerRef} className={`absolute inset-0 overflow-hidden ${className}`} />;
 }
