@@ -1,3 +1,4 @@
+cat << 'EOF' > vite.config.ts
 // @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
 // or the app will break with duplicate plugins:
 //   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
@@ -13,3 +14,8 @@ export default defineConfig({
     server: { entry: "server" },
   },
 });
+EOF
+
+git add vite.config.ts
+git commit -m "Fix vite.config.ts for TanStack Start"
+git push origin main
