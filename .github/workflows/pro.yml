@@ -1,0 +1,65 @@
+name: Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Debug - List all folders
+        run: ls -la
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 👇 CHANGE THIS LINE based on your framework:
+          # React (CRA) -> path: ./build
+          # Next.js     -> path: ./out
+          # Vite/Vue    -> path: ./dist
+          # HTML/CSS    -> path: .
+          path: ./dist 
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
