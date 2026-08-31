@@ -83,8 +83,9 @@ export async function classifyFile(input: {
   imageBase64?: string | null;
   profile: AuraProfile;
 }): Promise<Verdict> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return heuristic(input.fileName);
+  const provider = resolveProvider();
+  if (!provider) return heuristic(input.fileName);
+
 
   const p = input.profile;
   const system = `You are Aura's gatekeeper for a personal digital legacy vault. You decide what is worth keeping forever.
@@ -113,18 +114,21 @@ Critical document types to always keep: ${p.critical_docs.join(", ") || "unknown
       }`,
     },
   ];
-  if (input.imageBase64) {
+  if (input.imageBase64 && provider.vision) {
     content.push({
       type: "image_url",
       image_url: { url: `data:image/jpeg;base64,${input.imageBase64}` },
     });
   }
 
-  const res = await fetch(GATEWAY, {
+  const res = await fetch(provider.url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${provider.apiKey}`,
+    },
     body: JSON.stringify({
-      model: MODEL,
+      model: provider.model,
       messages: [
         { role: "system", content: system },
         { role: "user", content },
@@ -135,11 +139,17 @@ Critical document types to always keep: ${p.critical_docs.join(", ") || "unknown
 
   if (!res.ok) {
     const message = await res.text();
-    if (res.status === 429) throw new Error("Aura is rate limited right now — try again shortly.");
+    console.error(`AI provider error ${res.status}`, message.slice(0, 500));
+    if (res.status === 401 || res.status === 403)
+      throw new Error("Your AI provider rejected the API key. Check AI_API_KEY.");
+    if (res.status === 404)
+      throw new Error("AI endpoint not found. Check AI_API_BASE_URL and AI_MODEL.");
+    if (res.status === 429) throw new Error("Your AI provider is rate limiting — try again shortly.");
     if (res.status === 402)
-      throw new Error("AI credits are exhausted. Add credits in Lovable to keep analysing files.");
-    throw new Error(`AI analysis failed (${res.status}): ${message.slice(0, 200)}`);
+      throw new Error("Your AI provider reports insufficient credits.");
+    throw new Error(`AI analysis failed (${res.status}).`);
   }
+
 
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   const raw = json.choices?.[0]?.message?.content ?? "";
