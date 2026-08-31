@@ -51,7 +51,7 @@ export async function ingestFile(
   const storagePath = `${userId}/${crypto.randomUUID()}-${safeName}`;
   const { error: uploadError } = await supabase.storage
     .from("vault")
-    .upload(storagePath, payload, { contentType: payload.type || file.type || undefined });
+    .upload(storagePath, payload, { contentType: payload.type || file.type || "application/octet-stream" });
   if (uploadError) throw uploadError;
 
   const { data: row, error: insertError } = await supabase

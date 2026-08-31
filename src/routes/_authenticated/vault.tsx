@@ -108,7 +108,8 @@ function VaultPage() {
       if (cancelled || !data) return;
       const next: Record<string, string> = {};
       data.forEach((entry, i) => {
-        if (entry.signedUrl) next[images[i].id] = entry.signedUrl;
+        const img = images[i];
+        if (img && entry.signedUrl) next[img.id] = entry.signedUrl;
       });
       setThumbs((prev) => ({ ...prev, ...next }));
     })();
@@ -146,8 +147,10 @@ function VaultPage() {
 
     for (let i = 0; i < files.length; i++) {
       const item = items[i];
+      const target = files[i];
+      if (!item || !target) continue;
       try {
-        await ingestFile(files[i], userId, (stage, progress) =>
+        await ingestFile(target, userId, (stage, progress) =>
           setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, stage, progress } : x))),
         );
       } catch (err) {
@@ -273,7 +276,7 @@ function VaultPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {vault.map((row) => (
-                <FileCard key={row.id} row={row} thumb={thumbs[row.id]} />
+                <FileCard key={row.id} row={row} {...(thumbs[row.id] ? { thumb: thumbs[row.id]! } : {})} />
               ))}
             </div>
           )}
@@ -299,7 +302,7 @@ function VaultPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {junk.map((row) => (
-                <FileCard key={row.id} row={row} thumb={thumbs[row.id]} />
+                <FileCard key={row.id} row={row} {...(thumbs[row.id] ? { thumb: thumbs[row.id]! } : {})} />
               ))}
             </div>
           )}

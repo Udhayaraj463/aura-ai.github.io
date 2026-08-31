@@ -76,7 +76,8 @@ function CapsulePage() {
           .createSignedUrls(images.map((r) => r.files!.storage_path), 3600);
         const next: Record<string, string> = {};
         signed?.forEach((entry, i) => {
-          if (entry.signedUrl) next[images[i].id] = entry.signedUrl;
+          const img = images[i];
+          if (img && entry.signedUrl) next[img.id] = entry.signedUrl;
         });
         setUrls(next);
       }
