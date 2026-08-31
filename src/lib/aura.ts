@@ -60,7 +60,7 @@ export async function readExifDate(file: File): Promise<string | null> {
     const head = await file.slice(0, 256 * 1024).arrayBuffer();
     const bytes = new Uint8Array(head);
     let ascii = "";
-    for (let i = 0; i < bytes.length; i++) ascii += String.fromCharCode(bytes[i]);
+    for (let i = 0; i < bytes.length; i++) ascii += String.fromCharCode(bytes[i]!);
     const match = ascii.match(/(19|20)\d{2}:[01]\d:[0-3]\d/);
     if (!match) return null;
     return match[0].replace(/:/g, "-");

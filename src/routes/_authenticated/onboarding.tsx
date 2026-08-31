@@ -131,6 +131,8 @@ function Onboarding() {
     navigate({ to: "/vault" });
   };
 
+  if (!current) return null;
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-5 py-16">
       <p className="text-sm text-muted-foreground">
