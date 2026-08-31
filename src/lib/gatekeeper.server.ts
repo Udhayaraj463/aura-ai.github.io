@@ -1,5 +1,46 @@
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3.6-flash";
+/**
+ * Aura's AI gatekeeper.
+ *
+ * Bring-your-own AI: configure these server-side env vars (never exposed to
+ * the browser). Any OpenAI-compatible /chat/completions endpoint works —
+ * OpenAI, Groq, Together, OpenRouter, vLLM, LM Studio, a self-hosted proxy.
+ *
+ *   AI_API_KEY       required — your provider key
+ *   AI_API_BASE_URL  optional — default https://api.openai.com/v1
+ *   AI_MODEL         optional — default gpt-4o-mini
+ *   AI_VISION        optional — "false" to never send images to the model
+ *
+ * If AI_API_KEY is absent, Aura falls back to the Lovable gateway, and if that
+ * is missing too, to a local filename heuristic (no network calls at all).
+ */
+const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const LOVABLE_MODEL = "google/gemini-3.6-flash";
+
+function resolveProvider() {
+  const ownKey = process.env["AI_API_KEY"];
+  if (ownKey) {
+    const base = (process.env["AI_API_BASE_URL"] ?? "https://api.openai.com/v1").replace(/\/+$/, "");
+    return {
+      url: `${base}/chat/completions`,
+      apiKey: ownKey,
+      model: process.env["AI_MODEL"] ?? "gpt-4o-mini",
+      vision: process.env["AI_VISION"] !== "false",
+      own: true,
+    };
+  }
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (lovableKey) {
+    return {
+      url: LOVABLE_GATEWAY,
+      apiKey: lovableKey,
+      model: LOVABLE_MODEL,
+      vision: true,
+      own: false,
+    };
+  }
+  return null;
+}
+
 
 export type AuraProfile = {
   important_years: string[];
